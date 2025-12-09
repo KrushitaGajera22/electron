@@ -1,6 +1,13 @@
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld("electronAPI", {
-  saveChunk: (data, index, chunkTimestamp) =>
-    ipcRenderer.send("save-chunk", data, index, chunkTimestamp),
+contextBridge.exposeInMainWorld('electronAPI', {
+  enableLoopbackAudio: () => ipcRenderer.invoke('enable-loopback-audio'),
+  disableLoopbackAudio: () => ipcRenderer.invoke('disable-loopback-audio'),
+  saveRecording: (audioData, filename) => {
+    ipcRenderer.send('save-recording', audioData, filename);
+  },
+  onSaveRecordingResponse: (callback) => {
+    ipcRenderer.on('save-recording-response', (event, response) => callback(response));
+  }
 });
+
